@@ -22,13 +22,14 @@ export const signUp = async (email: string, password: string, name: string) => {
     console.log(authData.user.id);
     const { data } = await supabase.auth.getUser();
 
+    console.log(authData.user.id);
     console.log(data);
     // プロフィール作成を試みる
     const { error: profileError } = await supabase
       .from("profiles")
       .insert([
         {
-          id: "45684801-dc83-46fd-b9e1-0c3ece5b8260",
+          id: authData.user.id,
           name,
           email,
           created_at: new Date().toISOString(),
@@ -57,13 +58,29 @@ export const signUp = async (email: string, password: string, name: string) => {
   }
 };
 export const signIn = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  if (error) throw error;
-  return data;
+    if (error) {
+      // エラーメッセージを具体的に
+      if (error.message.includes("Invalid login credentials")) {
+        throw new Error("メールアドレスまたはパスワードが正しくありません");
+      }
+      throw error;
+    }
+
+    if (!data.user) {
+      throw new Error("ログインに失敗しました");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("SignIn error:", error);
+    throw error;
+  }
 };
 
 export const signOut = async () => {

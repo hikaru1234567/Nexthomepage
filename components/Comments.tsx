@@ -1,16 +1,21 @@
-// 7. コメントコンポーネント (components/CommentForm.tsx)
+"use client";
+
 import React from "react";
 import { Box, Button, TextField } from "@mui/material";
-import { useForm } from "react-hook-form";
-
+import { useForm, SubmitHandler } from "react-hook-form";
 interface CommentFormData {
-  content: number;
+  content: string;
 }
 
-export function CommentForm({ postId }: { postId: number }) {
-  const { register, handleSubmit, reset } = useForm<CommentFormData>();
+export function CommentForm({ postId }: { postId: string }) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<CommentFormData>();
 
-  const onSubmit = async (data: CommentFormData) => {
+  const onSubmit: SubmitHandler<CommentFormData> = async (data) => {
     try {
       const response = await fetch("/api/comments", {
         method: "POST",
@@ -28,14 +33,21 @@ export function CommentForm({ postId }: { postId: number }) {
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 2 }}>
       <TextField
-        {...register("content")}
-        label="コメント"
-        multiline
-        rows={2}
         fullWidth
-        margin="normal"
+        multiline
+        rows={4}
+        label="コメント"
+        error={!!errors.content}
+        helperText={errors.content?.message}
+        {...register("content", {
+          required: "コメントを入力してください",
+          minLength: {
+            value: 10,
+            message: "10文字以上入力してください",
+          },
+        })}
       />
-      <Button type="submit" variant="contained" sx={{ mt: 1 }}>
+      <Button type="submit" variant="contained" sx={{ mt: 2 }}>
         コメントする
       </Button>
     </Box>

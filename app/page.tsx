@@ -28,7 +28,7 @@ export default async function Home() {
   return (
     <AuthGuard>
       <Container maxWidth="sm">
-        <Box my={4}>
+        <Box my={4} border={1}>
           <Typography variant="h4" component="h1" gutterBottom>
             ブログ記事一覧
           </Typography>
