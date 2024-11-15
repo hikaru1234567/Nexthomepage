@@ -1,5 +1,6 @@
 // app/layout.tsx
 import { AuthProvider } from "@/components/AuthContext";
+import NavigationBar from "@/components/NavigationBar";
 import Providers from "./providers";
 
 export default function RootLayout({
@@ -11,7 +12,10 @@ export default function RootLayout({
     <html lang="ja">
       <body>
         <AuthProvider>
-          <Providers>{children}</Providers>
+          <Providers>
+            <NavigationBar />
+            {children}
+          </Providers>
         </AuthProvider>
       </body>
     </html>
