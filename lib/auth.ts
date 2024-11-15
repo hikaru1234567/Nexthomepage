@@ -1,6 +1,10 @@
 import { supabase } from "./supabase";
 
-export const signUp = async (email: string, password: string, name: string) => {
+export const signUp = async (
+  email: string,
+  password: string,
+  fullName: string
+) => {
   try {
     // 1. Sign up with Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -8,42 +12,13 @@ export const signUp = async (email: string, password: string, name: string) => {
       password,
       options: {
         data: {
-          name: name,
+          full_name: fullName, // メタデータとしてfull_nameを追加
         },
       },
     });
 
     if (authError) throw authError;
     if (!authData.user) throw new Error("ユーザー登録に失敗しました");
-
-    // ユーザーデータが確実にデータベースに反映されるまで待機
-
-    // セッションの確認
-    console.log(authData.user.id);
-    const { data } = await supabase.auth.getUser();
-
-    console.log(authData.user.id);
-    console.log(data);
-    // プロフィール作成を試みる
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .insert([
-        {
-          id: authData.user.id,
-          name,
-          email,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ])
-      .select();
-
-    if (profileError) {
-      console.error("Profile creation error:", profileError);
-      throw new Error("プロフィールの作成に失敗しました");
-    }
-
-    console.log(authData.user.id);
 
     return authData;
   } catch (error) {
@@ -57,6 +32,7 @@ export const signUp = async (email: string, password: string, name: string) => {
     throw new Error("サインアップ処理中にエラーが発生しました");
   }
 };
+
 export const signIn = async (email: string, password: string) => {
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
